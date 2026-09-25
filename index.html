@@ -1,0 +1,2210 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0a0e13">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Farmer Replaced 2</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overscroll-behavior:none;position:fixed;width:100%}
+body{
+  background:#0a0e13;color:#dbe4ee;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:14px;user-select:none;-webkit-user-select:none;
+}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+
+header{
+  display:flex;align-items:center;gap:5px;padding:5px 8px;
+  background:#131a24;border-bottom:1px solid #1f2a37;flex:0 0 auto;
+  font-size:11.5px;
+}
+.h-chip{
+  display:flex;align-items:center;gap:4px;padding:3px 7px;border-radius:8px;
+  background:#0f151d;border:1px solid #1f2a37;font-variant-numeric:tabular-nums;
+  white-space:nowrap;font-weight:600;
+}
+.h-chip.money{color:#ffd76e;border-color:#3d3216;background:#1a1508}
+.h-chip.field{color:#7ee2a8}
+.h-chip.weather{padding:3px 6px;font-size:13px;gap:3px}
+.h-chip .fc{color:#8fb7ff;font-size:11px;font-weight:700}
+.h-spacer{margin-left:auto}
+header button{
+  background:#1b2430;color:#dbe4ee;border:1px solid #2a3644;border-radius:7px;
+  padding:5px 9px;font-size:13px;font-weight:700;min-width:32px;
+}
+header button.shop{border-color:#7a5b1a;background:#2a2008;color:#ffd76e;font-size:12px;padding:5px 8px}
+
+#tierbar{
+  flex:0 0 auto;padding:3px 9px;background:#0d1319;border-bottom:1px solid #1f2a37;
+  font-size:10.5px;color:#8fb7ff;letter-spacing:.5px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+#tierbar .rank{font-weight:700;color:#7ee2a8}
+#tierbar .hint{color:#6a7d92;font-size:10px}
+
+#contract{
+  flex:0 0 auto;padding:5px 9px;background:linear-gradient(90deg,#141d28,#0f151d);
+  border-bottom:1px solid #1f2a37;font-size:11.5px;position:relative;overflow:hidden;
+}
+#contract .row{display:flex;align-items:center;gap:8px}
+#contract .label{color:#8fb7ff;font-weight:700;font-size:10px;letter-spacing:.5px;text-transform:uppercase}
+#contract .desc{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#contract .desc b{color:#fff}
+#contract .timer{font-variant-numeric:tabular-nums;color:#ffb27a;font-weight:700;font-size:11px}
+#contract .timer.warn{color:#ff6b6b}
+#contract .bar{height:3px;background:#1f2a37;border-radius:2px;margin-top:4px;overflow:hidden}
+#contract .fill{height:100%;background:linear-gradient(90deg,#2e9d61,#7ee2a8);border-radius:2px;transition:width .2s}
+
+#stage{
+  flex:1 1 auto;min-height:0;position:relative;overflow:hidden;
+  background:#0a0e13;
+}
+canvas{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:block;border-radius:6px;
+  box-shadow:0 0 0 1px #1f2a37,0 8px 30px rgba(0,0,0,.6)}
+
+#log{
+  flex:0 0 auto;height:32px;overflow-y:auto;padding:2px 8px;
+  background:#0f151d;border-top:1px solid #1f2a37;font-size:10.5px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#8fa3b8;line-height:1.4;
+}
+#log div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#log div.warn{color:#ffb27a}
+#log div.err{color:#ff6b6b}
+#log div.good{color:#7ee2a8}
+
+#quick{display:flex;gap:5px;overflow-x:auto;padding:5px 8px;background:#131a24;flex:0 0 auto;
+  scrollbar-width:none}
+#quick::-webkit-scrollbar{display:none}
+#quick button{
+  flex:0 0 auto;padding:5px 9px;border-radius:12px;border:1px solid #2a3644;
+  background:#1b2430;color:#b9c9db;font-size:11px;font-family:ui-monospace,monospace;
+  font-weight:600;
+}
+
+#toolbar{
+  display:flex;gap:6px;padding:6px 8px 8px;background:#131a24;flex:0 0 auto;align-items:center;
+}
+#toolbar button{
+  flex:1;padding:10px 4px;border-radius:9px;border:1px solid #2a3644;background:#1b2430;
+  color:#dbe4ee;font-size:13px;font-weight:700;
+}
+#toolbar button.primary{background:#1f6f43;border-color:#2e9d61;color:#fff}
+#toolbar button:disabled{opacity:.4}
+#speedWrap{flex:0 0 66px;display:flex;align-items:center}
+input[type=range]{width:100%;accent-color:#2e9d61;height:20px}
+
+#code{
+  flex:0 0 24vh;width:100%;resize:none;border:none;outline:none;
+  background:#0d1319;color:#c9e3ff;padding:8px 10px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:12.5px;line-height:1.5;border-top:1px solid #1f2a37;
+  -webkit-user-select:text;user-select:text;
+}
+
+.modal{
+  position:fixed;inset:0;background:rgba(4,7,10,.88);z-index:30;
+  padding:14px;overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.modal.hidden{display:none}
+.modal-box{
+  width:100%;max-width:540px;background:#111a24;border:1px solid #22303f;
+  border-radius:14px;padding:16px 18px;margin:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+}
+.modal-box h2{margin:0 0 12px;font-size:17px;color:#7ee2a8;padding-right:24px}
+.modal-close{
+  float:right;background:none;border:none;color:#8fa3b8;font-size:22px;
+  cursor:pointer;padding:0;margin:-6px -4px 0 0;line-height:1;
+}
+#helpBox{
+  font-size:12.5px;line-height:1.6;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#b9c9db;white-space:pre-wrap;
+  word-wrap:break-word;
+}
+#helpBox h3{color:#7ee2a8;margin:14px 0 4px;font-size:11.5px;letter-spacing:.5px;text-transform:uppercase}
+#helpBox h3:first-child{margin-top:0}
+
+#shopMoney{font-size:14px;color:#ffd76e;font-weight:700;margin-bottom:6px}
+#shopRank{font-size:11px;color:#8fb7ff;margin-bottom:10px}
+.shop-cat{margin:14px 0 6px;font-size:10.5px;color:#4d5b6a;letter-spacing:1px;text-transform:uppercase;font-weight:700}
+.shop-cat:first-child{margin-top:0}
+.shop-item{
+  display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:5px;
+  background:#0f151d;border:1px solid #1f2a37;border-radius:10px;
+}
+.shop-item.owned{opacity:.45}
+.shop-icon{font-size:22px;flex:0 0 auto;width:28px;text-align:center}
+.shop-info{flex:1;min-width:0}
+.shop-name{font-weight:700;font-size:13px;color:#dbe4ee}
+.shop-desc{font-size:11px;color:#8fa3b8;margin-top:2px;line-height:1.35}
+.shop-buy{
+  flex:0 0 auto;padding:8px 10px;border-radius:8px;border:1px solid #2e9d61;
+  background:#1f6f43;color:#fff;font-weight:700;font-size:11.5px;
+  min-width:64px;font-variant-numeric:tabular-nums;
+}
+.shop-buy:disabled{background:#1b2430;border-color:#2a3644;color:#4d5b6a}
+.shop-buy.owned{background:#1b2430;border-color:#2a3644;color:#4d5b6a}
+.shop-danger{
+  margin-top:18px;padding-top:14px;border-top:1px solid #2a1a1a;
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:11px;color:#6a4d4d;
+}
+.shop-danger button{
+  background:#2a1010;border:1px solid #5a2020;color:#ff8a8a;
+  padding:6px 10px;border-radius:6px;font-size:11px;font-weight:700;
+}
+
+.welcome-title{font-size:24px;font-weight:900;color:#7ee2a8;margin:0 0 2px;letter-spacing:1px}
+.welcome-sub{font-size:11px;color:#8fb7ff;letter-spacing:4px;margin:0 0 18px}
+.welcome-text{font-size:13.5px;line-height:1.65;color:#b9c9db;margin-bottom:14px}
+.welcome-text b{color:#7ee2a8}
+.modal-box button.action{
+  display:block;width:100%;margin-top:8px;padding:13px;border-radius:10px;
+  border:1px solid #2e9d61;background:#1f6f43;color:#fff;font-size:14.5px;font-weight:700;
+}
+.modal-box button.action.alt{background:#1b2430;border-color:#2a3644;color:#dbe4ee}
+
+.toast{
+  position:fixed;left:50%;top:32%;transform:translateX(-50%);
+  background:#1f6f43;color:#fff;padding:11px 20px;border-radius:10px;
+  font-weight:700;font-size:14px;z-index:40;pointer-events:none;
+  box-shadow:0 6px 24px rgba(0,0,0,.5);
+  animation:toastIn .25s ease-out;max-width:90vw;text-align:center;
+}
+.toast.warn{background:#a85a1a}
+.toast.reward{background:#c99a1a;color:#1a1406}
+.toast.rank{background:linear-gradient(90deg,#7a2ea8,#2e9d61);color:#fff;font-size:15px;padding:13px 24px}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <span class="h-chip money">💰 <b id="hMoney">0</b></span>
+    <span class="h-chip field">🌱 <b id="hField">4×4</b></span>
+    <span class="h-chip weather"><span id="hWeather">☀️</span><span id="hForecast" class="fc"></span></span>
+    <span class="h-spacer"></span>
+    <button class="shop" id="btnShop">🔧</button>
+    <button id="btnHelp">?</button>
+  </header>
+
+  <div id="tierbar">
+    <span>Ранг: <span class="rank" id="hTier">Новичок</span></span>
+    <span class="hint" id="hNextTier"></span>
+  </div>
+
+  <div id="contract">
+    <div class="row">
+      <span class="label">Контракт</span>
+      <span class="desc" id="cDesc">—</span>
+      <span class="timer" id="cTimer">—</span>
+    </div>
+    <div class="bar"><div class="fill" id="cFill" style="width:0%"></div></div>
+  </div>
+
+  <div id="stage">
+    <canvas id="cv"></canvas>
+  </div>
+
+  <div id="log"></div>
+  <div id="quick"></div>
+  <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+
+  <div id="toolbar">
+    <button id="btnRun" class="primary">▶ Запуск</button>
+    <button id="btnStop">■</button>
+    <button id="btnClear">✕</button>
+    <div id="speedWrap"><input type="range" id="speed" min="1" max="10" value="6"></div>
+  </div>
+</div>
+
+<div id="shopModal" class="modal hidden"><div class="modal-box">
+  <button class="modal-close" id="shopClose">✕</button>
+  <h2>🔧 Магазин</h2>
+  <div id="shopMoney">💰 0₽</div>
+  <div id="shopRank"></div>
+  <div id="shopList"></div>
+  <div class="shop-danger">
+    <span>Опасная зона</span>
+    <button id="btnResetAll">Сбросить прогресс</button>
+  </div>
+</div></div>
+
+<div id="helpModal" class="modal hidden"><div class="modal-box">
+  <button class="modal-close" id="helpClose">✕</button>
+  <h2>📖 Справка</h2>
+  <div id="helpBox"></div>
+</div></div>
+
+<div id="welcomeModal" class="modal hidden"><div class="modal-box">
+  <div class="welcome-title">FARMER REPLACED 2</div>
+  <div class="welcome-sub">DRONE PROTOCOL</div>
+  <div class="welcome-text">
+    Старый фермер ушёл. Теперь поле — твоя территория.<br><br>
+    <b>Пиши код</b> — дрон исполняет его построчно.<br>
+    <b>Зарабатывай</b> — расти от новичка до легенды.<br>
+    <b>Прокачивайся</b> — 25+ апгрейдов: поля, семена, гидропоника, защита от погоды и вредителей, экономика.<br><br>
+    В начале — только пшеница и солнечная погода.<br>
+    Засуха, шторм и жуки появятся позже.<br>
+    Инструменты против них — в магазине.<br><br>
+    <b>Начни с малого. Дальше — твоя фантазия.</b>
+  </div>
+  <button class="action" id="welcomeStart">▶ Начать работу</button>
+  <button class="action alt" id="welcomeHelp">📖 Справка</button>
+</div></div>
+
+<script>
+"use strict";
+
+/* ==================================================================
+   КОНСТАНТЫ
+   ================================================================== */
+
+const CROPS = {
+  wheat:     { grow:3, price:12,   name:'Пшеница',           icon:'🌾' },
+  carrot:    { grow:2, price:25,   name:'Морковь',           icon:'🥕' },
+  pumpkin:   { grow:5, price:80,   name:'Тыква',             icon:'🎃' },
+  sunflower: { grow:6, price:300,  name:'Подсолнух',         icon:'🌻' },
+  corn:      { grow:3, price:500,  name:'Кукуруза',          icon:'🌽' },
+  crystal:   { grow:8, price:2500, name:'Кристальная ягода', icon:'💎' }
+};
+
+const WEATHERS = {
+  sunny:   { icon:'☀️', name:'Солнечно', tint:'rgba(255,220,120,0.05)',  growthMult:1.0, waterDrain:1, moveCost:1 },
+  cloudy:  { icon:'⛅', name:'Облачно',  tint:'rgba(120,130,150,0.07)',  growthMult:1.0, waterDrain:1, moveCost:1 },
+  rain:    { icon:'🌧️', name:'Дождь',    tint:'rgba(80,140,220,0.14)',  growthMult:1.0, waterDrain:0, moveCost:1, autoWater:true },
+  drought: { icon:'🥵', name:'Засуха',   tint:'rgba(220,120,60,0.12)',  growthMult:0.5, waterDrain:2, moveCost:1 },
+  storm:   { icon:'⛈️', name:'Гроза',    tint:'rgba(60,70,120,0.20)',   growthMult:1.0, waterDrain:1, moveCost:2 }
+};
+
+const TIER_NAMES = ['Новичок', 'Фермер', 'Агроном', 'Эксперт', 'Мастер', 'Легенда'];
+const TIER_THRESHOLDS = [0, 500, 3000, 15000, 80000, 400000];
+
+// [sunny, cloudy, rain, drought, storm] per tier
+const WEATHER_TABLE = [
+  [0.82, 0.15, 0.03, 0.00, 0.00],
+  [0.60, 0.25, 0.12, 0.02, 0.01],
+  [0.45, 0.25, 0.15, 0.10, 0.05],
+  [0.35, 0.20, 0.20, 0.15, 0.10],
+  [0.25, 0.20, 0.20, 0.20, 0.15],
+  [0.20, 0.20, 0.20, 0.22, 0.18]
+];
+
+// [min, max] ticks
+const WEATHER_DURATION = [
+  [140, 260], [110, 200], [90, 160], [75, 130], [60, 110], [50, 95]
+];
+
+// pest spawn chance (checked every 10 ticks)
+const PEST_BASE = [0.008, 0.025, 0.05, 0.08, 0.11, 0.14];
+
+const UPGRADES = [
+  // ===== ПОЛЕ =====
+  { id:'field5', cat:'Поле', name:'Поле 5×5', desc:'Расширить ферму до 25 грядок', cost:400, icon:'🌾',
+    can:()=>GAME.fieldSize===4, apply:()=>GAME.fieldSize=5 },
+  { id:'field6', cat:'Поле', name:'Поле 6×6', desc:'36 грядок', cost:2000, icon:'🌾',
+    can:()=>GAME.fieldSize===5, apply:()=>GAME.fieldSize=6 },
+  { id:'field7', cat:'Поле', name:'Поле 7×7', desc:'49 грядок', cost:10000, icon:'🌾',
+    can:()=>GAME.fieldSize===6, apply:()=>GAME.fieldSize=7 },
+  { id:'field8', cat:'Поле', name:'Поле 8×8', desc:'64 грядки', cost:50000, icon:'🌾',
+    can:()=>GAME.fieldSize===7, apply:()=>GAME.fieldSize=8 },
+  { id:'field10', cat:'Поле', name:'Поле 10×10', desc:'100 грядок — максимум', cost:200000, icon:'🌾',
+    can:()=>GAME.fieldSize===8, apply:()=>GAME.fieldSize=10 },
+
+  // ===== СЕМЕНА =====
+  { id:'crop_carrot', cat:'Семена', name:'Морковь', desc:'2 такта · 25₽ за штуку', cost:150, icon:'🥕',
+    can:()=>!GAME.unlockedCrops.includes('carrot'), apply:()=>GAME.unlockedCrops.push('carrot') },
+  { id:'crop_pumpkin', cat:'Семена', name:'Тыква', desc:'5 тактов · 80₽', cost:800, icon:'🎃',
+    can:()=>!GAME.unlockedCrops.includes('pumpkin'), apply:()=>GAME.unlockedCrops.push('pumpkin') },
+  { id:'crop_sunflower', cat:'Семена', name:'Подсолнух', desc:'6 тактов · 300₽', cost:5000, icon:'🌻',
+    can:()=>!GAME.unlockedCrops.includes('sunflower'), apply:()=>GAME.unlockedCrops.push('sunflower') },
+  { id:'crop_corn', cat:'Семена', name:'Кукуруза', desc:'3 такта · 500₽ — быстрая и дорогая', cost:30000, icon:'🌽',
+    can:()=>!GAME.unlockedCrops.includes('corn'), apply:()=>GAME.unlockedCrops.push('corn') },
+  { id:'crop_crystal', cat:'Семена', name:'Кристальная ягода', desc:'8 тактов · 2500₽ — эндгейм', cost:250000, icon:'💎',
+    can:()=>!GAME.unlockedCrops.includes('crystal'), apply:()=>GAME.unlockedCrops.push('crystal') },
+
+  // ===== ГИДРОПОНИКА =====
+  { id:'hydro1', cat:'Гидропоника', name:'Гидро I', desc:'Один полив = 6 тактов роста', cost:2500, icon:'💧',
+    can:()=>GAME.waterDuration===4, apply:()=>GAME.waterDuration=6 },
+  { id:'hydro2', cat:'Гидропоника', name:'Гидро II', desc:'Один полив = 10 тактов роста', cost:20000, icon:'💧',
+    can:()=>GAME.waterDuration===6, apply:()=>GAME.waterDuration=10 },
+  { id:'hydro3', cat:'Гидропоника', name:'Гидро III', desc:'Один полив = 15 тактов роста', cost:100000, icon:'💧',
+    can:()=>GAME.waterDuration===10, apply:()=>GAME.waterDuration=15 },
+
+  // ===== ПОГОДА =====
+  { id:'forecast', cat:'Погода', name:'Прогноз погоды', desc:'Открывает get_forecast() — знаешь следующую погоду заранее', cost:500, icon:'📡',
+    can:()=>!GAME.purchases.includes('forecast'), apply:()=>{} },
+  { id:'umbrella', cat:'Погода', name:'Зонт', desc:'Гроза больше не замедляет дрон', cost:2000, icon:'☂️',
+    can:()=>!GAME.purchases.includes('umbrella'), apply:()=>{} },
+  { id:'greenhouse', cat:'Погода', name:'Теплица', desc:'Засуха не тормозит рост растений', cost:25000, icon:'🏠',
+    can:()=>!GAME.purchases.includes('greenhouse'), apply:()=>{} },
+
+  // ===== ЗАЩИТА =====
+  { id:'repellent', cat:'Защита', name:'Репеллент', desc:'Вредители появляются в 2 раза реже', cost:1200, icon:'🛡️',
+    can:()=>!GAME.purchases.includes('repellent'), apply:()=>{} },
+  { id:'scarecrow', cat:'Защита', name:'Пугало', desc:'Ещё в 3 раза реже (суммируется с репеллентом)', cost:8000, icon:'🎭',
+    can:()=>!GAME.purchases.includes('scarecrow'), apply:()=>{} },
+  { id:'bioweapon', cat:'Защита', name:'Биозащита', desc:'Вредители больше не появляются вообще', cost:50000, icon:'🧬',
+    can:()=>!GAME.purchases.includes('bioweapon'), apply:()=>{} },
+
+  // ===== ДРОН =====
+  { id:'turbo', cat:'Дрон', name:'Турбо-мотор', desc:'Шторм замедляет в 2 раза меньше', cost:3000, icon:'⚡',
+    can:()=>!GAME.purchases.includes('turbo'), apply:()=>{} },
+  { id:'warp', cat:'Дрон', name:'Варп-двигатель', desc:'Любое движение бесплатно (0 тактов)', cost:30000, icon:'🚀',
+    can:()=>!GAME.purchases.includes('warp'), apply:()=>{} },
+
+  // ===== ЭКОНОМИКА =====
+  { id:'market', cat:'Экономика', name:'Аналитика рынка', desc:'+25% к цене продажи всех культур', cost:15000, icon:'📊',
+    can:()=>!GAME.purchases.includes('market'), apply:()=>{} },
+  { id:'premium', cat:'Экономика', name:'Премиум-контракты', desc:'Награда за выполнение контракта ×2', cost:40000, icon:'📜',
+    can:()=>!GAME.purchases.includes('premium'), apply:()=>{} },
+  { id:'syndicate', cat:'Экономика', name:'Синдикат', desc:'+5₽ пассивно каждый такт (даже без действий)', cost:150000, icon:'🏛️',
+    can:()=>!GAME.purchases.includes('syndicate'), apply:()=>{} },
+  { id:'vault', cat:'Экономика', name:'Хранилище', desc:'+50₽ пассивно каждый такт', cost:600000, icon:'🏦',
+    can:()=>!GAME.purchases.includes('vault'), apply:()=>{} }
+];
+
+const CATEGORY_ORDER = ['Поле', 'Семена', 'Гидропоника', 'Погода', 'Защита', 'Дрон', 'Экономика'];
+
+const DEFAULT_CODE =
+`# ============================================
+#  FARMER REPLACED 2 — дрон-фермер
+# ============================================
+#
+#  ЖИЗНЕННЫЙ ЦИКЛ ГРЯДКИ:
+#    till()             вспахать
+#    plant("wheat")     посадить
+#    water()            полить
+#    wait(3)            дождаться роста
+#    harvest()          собрать (деньги + контракт)
+#
+#  ДВИЖЕНИЕ:   up()  down()  left()  right()
+#  ЦИКЛЫ:      repeat(n) { ... }    while (усл.) { ... }
+#  УСЛОВИЯ:    if (усл.) { ... } else { ... }
+#  ФУНКЦИИ:    func имя(a) { return a * 2 }
+#
+#  ДАТЧИКИ:
+#    can_harvest()      урожай созрел?
+#    is_tilled()        грядка вспахана?
+#    has_plant()        что-то растёт?
+#    has_pest()         вредитель на грядке?
+#    get_crop()         тип культуры или null
+#    get_pos_x() / get_pos_y()
+#    get_money() / get_ticks()
+#    get_field_size()
+#    get_weather()      текущая погода
+#    get_forecast()     следующая погода (после апгрейда)
+#    get_tier()         текущий ранг (0..5)
+#
+#  ДЕЙСТВИЯ ОСОБЫЕ:
+#    clean()            убрать вредителя с грядки
+#
+#  ПОГОДА (меняется редко):
+#    ☀️ солнечно  ⛅ облачно  🌧️ дождь (автополив)
+#    🥵 засуха    ⛈️ гроза
+#
+#  ВРЕДИТЕЛИ: появятся позже, когда разбогатеешь.
+#
+#  ПРОГРЕССИЯ: смотри магазин → покупай поля, семена,
+#              гидропонику, защиту, экономику.
+#
+#  Начни с пшеницы. Усложняй код по мере роста.
+
+# Твой код здесь:
+`;
+
+/* ==================================================================
+   СОСТОЯНИЕ
+   ================================================================== */
+
+const GAME = {
+  money: 0,
+  totalEarned: 0,
+  fieldSize: 4,
+  waterDuration: 4,
+  unlockedCrops: ['wheat'],
+  purchases: [],
+  weather: 'sunny',
+  nextWeather: 'sunny',
+  weatherTicksLeft: 200,
+  contract: null,
+  lastTier: 0
+};
+
+let grid = new Map();
+let drone = { x: 0, y: 0 };
+let ticks = 0;
+const particles = [];
+const floatingTexts = [];
+
+let running = false;
+let gen = null;
+let rafId = null;
+let lastT = 0;
+let acc = 0;
+let delay = 40;
+let animTime = 0;
+
+const cv = document.getElementById('cv');
+const ctx2d = cv.getContext('2d');
+const stageEl = document.getElementById('stage');
+let CW = 320;
+
+/* ==================================================================
+   РАНГИ
+   ================================================================== */
+
+function getTier() {
+  const m = GAME.totalEarned;
+  for (let i = TIER_THRESHOLDS.length - 1; i >= 0; i--) {
+    if (m >= TIER_THRESHOLDS[i]) return i;
+  }
+  return 0;
+}
+
+function checkTierUp() {
+  const t = getTier();
+  if (t > GAME.lastTier) {
+    GAME.lastTier = t;
+    toast('🏅 Новый ранг: ' + TIER_NAMES[t], 'rank');
+    log('🏅 Ты теперь ' + TIER_NAMES[t] + '!', 'good');
+  }
+  updateTierUI();
+}
+
+function updateTierUI() {
+  const t = getTier();
+  document.getElementById('hTier').textContent = TIER_NAMES[t];
+  const next = TIER_THRESHOLDS[t + 1];
+  const el = document.getElementById('hNextTier');
+  if (next === undefined) {
+    el.textContent = '🏆 Максимальный ранг';
+  } else {
+    const rem = next - GAME.totalEarned;
+    el.textContent = 'до следующего: ' + rem.toLocaleString('ru-RU') + '₽';
+  }
+}
+
+/* ==================================================================
+   УТИЛИТЫ
+   ================================================================== */
+
+function tileAt(x, y) {
+  if (x < 0 || y < 0 || x >= GAME.fieldSize || y >= GAME.fieldSize)
+    return { x, y, tilled:false, crop:null, water:0, pest:0, void:true };
+  const key = x + ',' + y;
+  let t = grid.get(key);
+  if (!t) { t = { x, y, tilled:false, crop:null, water:0, pest:0 }; grid.set(key, t); }
+  return t;
+}
+
+function eachTile(fn) {
+  for (let y = 0; y < GAME.fieldSize; y++)
+    for (let x = 0; x < GAME.fieldSize; x++)
+      fn(tileAt(x, y));
+}
+
+function hasUpgrade(id) { return GAME.purchases.includes(id); }
+
+function sellPrice(crop) {
+  let p = CROPS[crop].price;
+  if (hasUpgrade('market')) p = Math.round(p * 1.25);
+  return p;
+}
+
+/* ==================================================================
+   ЛОГ
+   ================================================================== */
+
+let lastLogMsg = '', lastLogCount = 0, lastLogEl = null;
+
+function log(msg, cls) {
+  const el = document.getElementById('log');
+  if (msg === lastLogMsg && lastLogEl && !cls) {
+    lastLogCount++;
+    lastLogEl.textContent = msg + '  ×' + lastLogCount;
+    el.scrollTop = el.scrollHeight;
+    return;
+  }
+  lastLogMsg = cls ? '' : msg; lastLogCount = 1;
+  const d = document.createElement('div');
+  d.textContent = msg;
+  if (cls) d.className = cls;
+  el.appendChild(d);
+  lastLogEl = d;
+  while (el.children.length > 50) el.removeChild(el.firstChild);
+  el.scrollTop = el.scrollHeight;
+}
+function clearLog() {
+  document.getElementById('log').innerHTML = '';
+  lastLogMsg = ''; lastLogEl = null; lastLogCount = 0;
+}
+
+/* ==================================================================
+   ТОКЕНАЙЗЕР + ПАРСЕР
+   ================================================================== */
+
+function tokenize(src) {
+  const out = []; let i = 0;
+  const isDigit = c => c >= '0' && c <= '9';
+  const isAlpha = c => /[A-Za-z_]/.test(c);
+  const isAlnum = c => /[A-Za-z0-9_]/.test(c);
+  while (i < src.length) {
+    const c = src[i];
+    if (c === ' ' || c === '\t' || c === '\n' || c === '\r') { i++; continue; }
+    if (c === '#') { while (i < src.length && src[i] !== '\n') i++; continue; }
+    if (isDigit(c)) {
+      let j = i;
+      while (j < src.length && (isDigit(src[j]) || src[j] === '.')) j++;
+      out.push({ type:'num', value: parseFloat(src.slice(i, j)) }); i = j; continue;
+    }
+    if (c === '"' || c === "'") {
+      const q = c; let j = i + 1; let s = '';
+      while (j < src.length && src[j] !== q) {
+        if (src[j] === '\\' && j + 1 < src.length) { s += src[j+1]; j += 2; continue; }
+        s += src[j]; j++;
+      }
+      if (j >= src.length) throw new Error('Незакрытая кавычка');
+      out.push({ type:'str', value: s }); i = j + 1; continue;
+    }
+    if (isAlpha(c)) {
+      let j = i;
+      while (j < src.length && isAlnum(src[j])) j++;
+      out.push({ type:'id', value: src.slice(i, j) }); i = j; continue;
+    }
+    const two = src.substr(i, 2);
+    if (['==','!=','<=','>=','&&','||'].includes(two)) { out.push({ type:'op', value: two }); i += 2; continue; }
+    if ('+-*/%(){}[],=<>!'.indexOf(c) >= 0) { out.push({ type:'op', value: c }); i++; continue; }
+    throw new Error('Неизвестный символ: «' + c + '»');
+  }
+  out.push({ type:'eof', value: null });
+  return out;
+}
+
+function parse(tokens) {
+  let pos = 0;
+  const peek = () => tokens[pos];
+  const next = () => tokens[pos++];
+  const check = v => tokens[pos].value === v;
+  const expect = v => {
+    const t = next();
+    if (t.value !== v) throw new Error('Ожидалось «' + v + '», получено «' + t.value + '»');
+    return t;
+  };
+  function parseBlock() {
+    expect('{');
+    const body = [];
+    while (!check('}')) {
+      if (peek().type === 'eof') throw new Error('Не закрыта «}»');
+      body.push(parseStatement());
+    }
+    expect('}');
+    return { type:'block', body };
+  }
+  function parseStatement() {
+    const t = peek();
+    if (t.value === '{') return parseBlock();
+    if (t.value === 'if') {
+      next(); expect('('); const cond = parseExpr(); expect(')');
+      const thenB = parseBlock();
+      let els = null;
+      if (check('else')) { next(); els = check('if') ? parseStatement() : parseBlock(); }
+      return { type:'if', cond, then: thenB, els };
+    }
+    if (t.value === 'while') {
+      next(); expect('('); const cond = parseExpr(); expect(')');
+      return { type:'while', cond, body: parseBlock() };
+    }
+    if (t.value === 'repeat') {
+      next(); expect('('); const n = parseExpr(); expect(')');
+      return { type:'repeat', n, body: parseBlock() };
+    }
+    if (t.value === 'func') {
+      next(); const name = next().value;
+      expect('(');
+      const params = [];
+      while (!check(')')) { params.push(next().value); if (check(',')) next(); }
+      expect(')');
+      return { type:'funcdef', name, params, body: parseBlock() };
+    }
+    if (t.value === 'return') {
+      next();
+      if (check('}')) return { type:'return', value: null };
+      return { type:'return', value: parseExpr() };
+    }
+    const e = parseExpr();
+    if (check('=')) {
+      next();
+      const rhs = parseExpr();
+      if (e.type !== 'var') throw new Error('Слева от «=» должна быть переменная');
+      return { type:'assign', name: e.name, value: rhs };
+    }
+    return { type:'exprstmt', expr: e };
+  }
+  function parseExpr() { return parseOr(); }
+  function parseOr() {
+    let l = parseAnd();
+    while (check('or') || check('||')) { next(); l = { type:'bin', op:'or', left:l, right: parseAnd() }; }
+    return l;
+  }
+  function parseAnd() {
+    let l = parseNot();
+    while (check('and') || check('&&')) { next(); l = { type:'bin', op:'and', left:l, right: parseNot() }; }
+    return l;
+  }
+  function parseNot() {
+    if (check('not') || check('!')) { next(); return { type:'un', op:'not', arg: parseNot() }; }
+    return parseComparison();
+  }
+  function parseComparison() {
+    let l = parseAdd();
+    while (['==','!=','<','>','<=','>='].includes(peek().value)) {
+      const op = next().value;
+      l = { type:'bin', op, left:l, right: parseAdd() };
+    }
+    return l;
+  }
+  function parseAdd() {
+    let l = parseMul();
+    while (check('+') || check('-')) { const op = next().value; l = { type:'bin', op, left:l, right: parseMul() }; }
+    return l;
+  }
+  function parseMul() {
+    let l = parseUnary();
+    while (check('*') || check('/') || check('%')) { const op = next().value; l = { type:'bin', op, left:l, right: parseUnary() }; }
+    return l;
+  }
+  function parseUnary() {
+    if (check('-')) { next(); return { type:'un', op:'neg', arg: parseUnary() }; }
+    return parsePrimary();
+  }
+  function parsePrimary() {
+    const t = next();
+    if (t.type === 'num') return { type:'num', value: t.value };
+    if (t.type === 'str') return { type:'str', value: t.value };
+    if (t.value === 'true')  return { type:'num', value: true };
+    if (t.value === 'false') return { type:'num', value: false };
+    if (t.value === '(') { const e = parseExpr(); expect(')'); return e; }
+    if (t.type === 'id') {
+      if (check('(')) {
+        next();
+        const args = [];
+        while (!check(')')) { args.push(parseExpr()); if (check(',')) next(); }
+        expect(')');
+        return { type:'call', name: t.value, args };
+      }
+      return { type:'var', name: t.value };
+    }
+    throw new Error('Неожиданный элемент: «' + t.value + '»');
+  }
+  const program = { type:'program', body: [] };
+  while (peek().type !== 'eof') program.body.push(parseStatement());
+  return program;
+}
+
+/* ==================================================================
+   ОКРУЖЕНИЕ
+   ================================================================== */
+
+class Env {
+  constructor(parent) { this.vars = new Map(); this.parent = parent || null; }
+  get(n) {
+    let e = this;
+    while (e) { if (e.vars.has(n)) return e.vars.get(n); e = e.parent; }
+    throw new Error('Неизвестная переменная: ' + n);
+  }
+  set(n, v) {
+    let e = this;
+    while (e) { if (e.vars.has(n)) { e.vars.set(n, v); return; } e = e.parent; }
+    this.vars.set(n, v);
+  }
+}
+const truthy = v => !(v === false || v === 0 || v === '' || v === null || v === undefined);
+
+/* ==================================================================
+   ВСТРОЕННЫЕ ФУНКЦИИ
+   ================================================================== */
+
+const BUILTINS = {
+  move: function*(a) {
+    const d = String(a[0]);
+    if (!['up','down','left','right'].includes(d))
+      throw new Error('move: направление — "up"/"down"/"left"/"right"');
+    yield { kind:'move', dir:d };
+    return null;
+  },
+  up:    function*() { yield { kind:'move', dir:'up' };    return null; },
+  down:  function*() { yield { kind:'move', dir:'down' };  return null; },
+  left:  function*() { yield { kind:'move', dir:'left' };  return null; },
+  right: function*() { yield { kind:'move', dir:'right' }; return null; },
+  till:    function*() { yield { kind:'till' }; return null; },
+  water:   function*() { yield { kind:'water' }; return null; },
+  harvest: function*() { yield { kind:'harvest' }; return null; },
+  clean:   function*() { yield { kind:'clean' }; return null; },
+
+  plant: function*(a) {
+    const c = String(a[0]);
+    if (!CROPS[c]) throw new Error('plant: неизвестная культура «' + c + '»');
+    if (!GAME.unlockedCrops.includes(c))
+      throw new Error('plant: культура «' + c + '» не разблокирована');
+    yield { kind:'plant', crop:c };
+    return null;
+  },
+  wait: function*(a) {
+    let n = Number(a[0] === undefined ? 1 : a[0]);
+    if (!isFinite(n) || n < 0) n = 0;
+    yield { kind:'wait', n: Math.floor(n) };
+    return null;
+  },
+  log: function*(a) { log('🖨 ' + String(a[0] === undefined ? '' : a[0])); return null; },
+
+  can_harvest: function*() {
+    const t = tileAt(drone.x, drone.y);
+    return !!(t.crop && t.crop.growth >= CROPS[t.crop.type].grow);
+  },
+  is_tilled: function*() { return !!tileAt(drone.x, drone.y).tilled; },
+  has_plant: function*() { return !!tileAt(drone.x, drone.y).crop; },
+  has_pest:  function*() { return tileAt(drone.x, drone.y).pest > 0; },
+  get_crop:  function*() { const t = tileAt(drone.x, drone.y); return t.crop ? t.crop.type : null; },
+  get_pos_x: function*() { return drone.x; },
+  get_pos_y: function*() { return drone.y; },
+  get_money: function*() { return GAME.money; },
+  get_ticks: function*() { return ticks; },
+  get_field_size: function*() { return GAME.fieldSize; },
+  get_weather: function*() { return GAME.weather; },
+  get_tier: function*() { return getTier(); },
+  get_forecast: function*() {
+    if (!hasUpgrade('forecast')) return '???';
+    return GAME.nextWeather || GAME.weather;
+  },
+  contract_crop: function*() { return GAME.contract ? GAME.contract.crop : null; },
+  contract_left: function*() { return GAME.contract ? (GAME.contract.amount - GAME.contract.progress) : 0; },
+  contract_ticks: function*() { return GAME.contract ? GAME.contract.ticksLeft : 0; }
+};
+
+/* ==================================================================
+   ИНТЕРПРЕТАТОР
+   ================================================================== */
+
+function* runProgram(ast, context) {
+  const env = new Env(null);
+  context.globalEnv = env;
+  for (const s of ast.body) if (s.type === 'funcdef') context.funcs[s.name] = s;
+  for (const s of ast.body) {
+    if (s.type === 'funcdef') continue;
+    const r = yield* execStmt(s, env, context);
+    if (r !== undefined) return r.value;
+  }
+  return null;
+}
+
+function* execStmt(node, env, context) {
+  switch (node.type) {
+    case 'block':
+      for (const s of node.body) {
+        const r = yield* execStmt(s, env, context);
+        if (r !== undefined) return r;
+      }
+      return undefined;
+    case 'if': {
+      const c = truthy(yield* evalExpr(node.cond, env, context));
+      if (c) return yield* execStmt(node.then, env, context);
+      if (node.els) return yield* execStmt(node.els, env, context);
+      return undefined;
+    }
+    case 'while':
+      while (truthy(yield* evalExpr(node.cond, env, context))) {
+        if (++context.steps > context.maxSteps) throw new Error('Похоже на бесконечный цикл');
+        const r = yield* execStmt(node.body, env, context);
+        if (r !== undefined) return r;
+      }
+      return undefined;
+    case 'repeat': {
+      const n = Math.floor(Number(yield* evalExpr(node.n, env, context)) || 0);
+      for (let i = 0; i < n; i++) {
+        if (++context.steps > context.maxSteps) throw new Error('Похоже на бесконечный цикл');
+        const r = yield* execStmt(node.body, env, context);
+        if (r !== undefined) return r;
+      }
+      return undefined;
+    }
+    case 'assign': env.set(node.name, yield* evalExpr(node.value, env, context)); return undefined;
+    case 'return': { const v = node.value ? yield* evalExpr(node.value, env, context) : null; return { value: v }; }
+    case 'exprstmt': yield* evalExpr(node.expr, env, context); return undefined;
+  }
+  return undefined;
+}
+
+function* evalExpr(node, env, context) {
+  switch (node.type) {
+    case 'num': case 'str': return node.value;
+    case 'var': return env.get(node.name);
+    case 'un': {
+      const v = yield* evalExpr(node.arg, env, context);
+      if (node.op === 'not') return !truthy(v);
+      return -Number(v);
+    }
+    case 'bin': {
+      const op = node.op;
+      if (op === 'and') {
+        if (!truthy(yield* evalExpr(node.left, env, context))) return false;
+        return truthy(yield* evalExpr(node.right, env, context));
+      }
+      if (op === 'or') {
+        if (truthy(yield* evalExpr(node.left, env, context))) return true;
+        return truthy(yield* evalExpr(node.right, env, context));
+      }
+      const l = yield* evalExpr(node.left, env, context);
+      const r = yield* evalExpr(node.right, env, context);
+      switch (op) {
+        case '+': return (typeof l === 'string' || typeof r === 'string') ? String(l) + String(r) : Number(l) + Number(r);
+        case '-': return Number(l) - Number(r);
+        case '*': return Number(l) * Number(r);
+        case '/': return Number(l) / Number(r);
+        case '%': return Number(l) % Number(r);
+        case '==': return l === r;
+        case '!=': return l !== r;
+        case '<':  return Number(l) <  Number(r);
+        case '>':  return Number(l) >  Number(r);
+        case '<=': return Number(l) <= Number(r);
+        case '>=': return Number(l) >= Number(r);
+      }
+      return null;
+    }
+    case 'call': {
+      const args = [];
+      for (const a of node.args) args.push(yield* evalExpr(a, env, context));
+      return yield* callFunction(node.name, args, context);
+    }
+  }
+  return null;
+}
+
+function* callFunction(name, args, context) {
+  const b = BUILTINS[name];
+  if (b) return yield* b(args, context);
+  const fn = context.funcs[name];
+  if (!fn) throw new Error('Неизвестная функция: ' + name + '()');
+  if (context.depth > 40) throw new Error('Слишком глубокая рекурсия');
+  const local = new Env(context.globalEnv);
+  for (let i = 0; i < fn.params.length; i++)
+    local.vars.set(fn.params[i], args[i] === undefined ? null : args[i]);
+  context.depth++;
+  const r = yield* execStmt(fn.body, local, context);
+  context.depth--;
+  return r !== undefined ? r.value : null;
+}
+
+/* ==================================================================
+   КОНТРАКТЫ
+   ================================================================== */
+
+function newContract() {
+  const crops = GAME.unlockedCrops;
+  const crop = crops[Math.floor(Math.random() * crops.length)];
+  const def = CROPS[crop];
+  const tier = getTier();
+  const baseAmount = Math.max(4, Math.round(8 - def.price / 20));
+  const amount = baseAmount + tier * 2;
+  let reward = Math.round(def.price * amount * (0.8 + tier * 0.12));
+  if (hasUpgrade('premium')) reward *= 2;
+  const ticksMax = 200 + amount * 10 + Math.floor(def.grow * 25);
+  GAME.contract = {
+    crop, amount, progress: 0,
+    ticksLeft: ticksMax, ticksMax, reward
+  };
+  updateContractUI();
+}
+
+function contractProgress(crop) {
+  if (!GAME.contract || GAME.contract.crop !== crop) return;
+  GAME.contract.progress++;
+  if (GAME.contract.progress >= GAME.contract.amount) {
+    const bonus = GAME.contract.reward;
+    GAME.money += bonus;
+    GAME.totalEarned += bonus;
+    toast('🏆 Контракт: +' + bonus + '₽', 'reward');
+    log('🏆 Контракт: +' + bonus + '₽', 'good');
+    checkTierUp();
+    newContract();
+  }
+  updateContractUI();
+}
+
+function updateContractUI() {
+  const d = document.getElementById('cDesc');
+  const t = document.getElementById('cTimer');
+  const f = document.getElementById('cFill');
+  const c = GAME.contract;
+  if (!c) {
+    d.textContent = '—'; t.textContent = '—'; f.style.width = '0%';
+    return;
+  }
+  const def = CROPS[c.crop];
+  d.innerHTML = def.icon + ' Сдать <b>' + c.amount + '</b> × ' + def.name +
+    ' (' + c.progress + '/' + c.amount + ') — <b style="color:#ffd76e">+' + c.reward + '₽</b>';
+  t.textContent = '⏱ ' + Math.ceil(c.ticksLeft);
+  t.className = 'timer' + (c.ticksLeft < 40 ? ' warn' : '');
+  f.style.width = Math.min(100, 100 * c.progress / c.amount) + '%';
+}
+
+/* ==================================================================
+   ПОГОДА
+   ================================================================== */
+
+function pickWeatherForTier() {
+  const tier = getTier();
+  const table = WEATHER_TABLE[Math.min(tier, WEATHER_TABLE.length - 1)];
+  const roll = Math.random();
+  let acc = 0;
+  const names = ['sunny', 'cloudy', 'rain', 'drought', 'storm'];
+  for (let i = 0; i < names.length; i++) {
+    acc += table[i];
+    if (roll < acc) return names[i];
+  }
+  return 'sunny';
+}
+
+function pickWeatherDuration() {
+  const tier = getTier();
+  const r = WEATHER_DURATION[Math.min(tier, WEATHER_DURATION.length - 1)];
+  return r[0] + Math.floor(Math.random() * (r[1] - r[0]));
+}
+
+function updateWeatherUI() {
+  document.getElementById('hWeather').textContent = WEATHERS[GAME.weather].icon;
+  const fc = document.getElementById('hForecast');
+  if (hasUpgrade('forecast')) {
+    fc.textContent = '→' + WEATHERS[GAME.nextWeather || GAME.weather].icon;
+  } else {
+    fc.textContent = '';
+  }
+}
+
+function initWeather() {
+  GAME.weather = pickWeatherForTier();
+  GAME.weatherTicksLeft = pickWeatherDuration();
+  GAME.nextWeather = pickWeatherForTier();
+  updateWeatherUI();
+}
+
+/* ==================================================================
+   ВРЕДИТЕЛИ
+   ================================================================== */
+
+function getPestSpawnChance() {
+  if (hasUpgrade('bioweapon')) return 0;
+  const tier = getTier();
+  const base = PEST_BASE[Math.min(tier, PEST_BASE.length - 1)];
+  let mult = 1;
+  if (hasUpgrade('repellent')) mult *= 0.5;
+  if (hasUpgrade('scarecrow')) mult *= 0.3;
+  return base * mult;
+}
+
+function spawnPest() {
+  if (getPestSpawnChance() <= 0) return;
+  const candidates = [];
+  eachTile(t => { if (t.crop && t.pest === 0) candidates.push(t); });
+  if (candidates.length === 0) return;
+  const t = candidates[Math.floor(Math.random() * candidates.length)];
+  t.pest = 5;
+  spawnParticles(t.x + 0.5, t.y + 0.5, 4, 'pest');
+}
+
+/* ==================================================================
+   ИГРОВАЯ ЛОГИКА
+   ================================================================== */
+
+function resetDrone() { drone = { x: 0, y: 0 }; }
+
+function clearField() {
+  grid.clear();
+  ticks = 0;
+  resetDrone();
+  particles.length = 0;
+  floatingTexts.length = 0;
+}
+
+function advanceTicks(n) {
+  for (let i = 0; i < n; i++) {
+    ticks++;
+
+    // Пассивный доход
+    if (hasUpgrade('syndicate')) { GAME.money += 5; GAME.totalEarned += 5; }
+    if (hasUpgrade('vault')) { GAME.money += 50; GAME.totalEarned += 50; }
+
+    // Смена погоды
+    GAME.weatherTicksLeft--;
+    if (GAME.weatherTicksLeft <= 0) {
+      GAME.weather = GAME.nextWeather || pickWeatherForTier();
+      GAME.weatherTicksLeft = pickWeatherDuration();
+      GAME.nextWeather = pickWeatherForTier();
+      updateWeatherUI();
+    }
+
+    const W = WEATHERS[GAME.weather];
+
+    // Рост, вода, поедание
+    eachTile(t => {
+      if (t.crop && t.water > 0) {
+        const def = CROPS[t.crop.type];
+        if (t.crop.growth < def.grow) {
+          let mult = W.growthMult;
+          if (GAME.weather === 'drought' && hasUpgrade('greenhouse')) mult = 1;
+          if (mult >= 1 || Math.random() < mult) t.crop.growth++;
+          t.water = Math.max(0, t.water - W.waterDrain);
+        }
+      }
+      if (t.pest > 0 && t.crop) {
+        t.pest--;
+        if (t.pest === 0) {
+          t.crop = null;
+          t.water = 0;
+          spawnParticles(t.x + 0.5, t.y + 0.5, 4, 'loss');
+        }
+      }
+    });
+
+    // Дождь автополив
+    if (W.autoWater) {
+      eachTile(t => { if (t.crop) t.water = Math.max(t.water, 4); });
+    }
+
+    // Спавн вредителей (проверка раз в 10 тактов)
+    if (ticks % 10 === 0) {
+      const chance = getPestSpawnChance();
+      if (chance > 0 && Math.random() < chance) spawnPest();
+    }
+  }
+
+  // Таймер контракта
+  if (GAME.contract) {
+    GAME.contract.ticksLeft -= n;
+    if (GAME.contract.ticksLeft <= 0) {
+      log('⏱ Контракт истёк', 'warn');
+      newContract();
+    }
+  }
+
+  checkTierUp();
+  updateHUD();
+  updateContractUI();
+}
+
+function performAction(a) {
+  const t = tileAt(drone.x, drone.y);
+  const W = WEATHERS[GAME.weather];
+
+  switch (a.kind) {
+    case 'move': {
+      let nx = drone.x, ny = drone.y;
+      if (a.dir === 'up') ny--;
+      else if (a.dir === 'down') ny++;
+      else if (a.dir === 'left') nx--;
+      else if (a.dir === 'right') nx++;
+      if (nx < 0 || nx >= GAME.fieldSize || ny < 0 || ny >= GAME.fieldSize) {
+        log('⚠️ Дрон упёрся в границу', 'warn');
+      } else { drone.x = nx; drone.y = ny; }
+      let cost = W.moveCost;
+      if (GAME.weather === 'storm' && hasUpgrade('umbrella')) cost = 1;
+      if (GAME.weather === 'storm' && hasUpgrade('turbo')) cost = 1;
+      if (hasUpgrade('warp')) cost = 0;
+      advanceTicks(cost);
+      break;
+    }
+    case 'till': {
+      if (t.crop) log('⚠️ Тут уже растёт', 'warn');
+      else if (t.tilled) log('⚠️ Уже вспахано', 'warn');
+      else t.tilled = true;
+      advanceTicks(1);
+      break;
+    }
+    case 'plant': {
+      if (!t.tilled) log('⚠️ Сначала till()', 'warn');
+      else if (t.crop) log('⚠️ Уже посажено', 'warn');
+      else t.crop = { type: a.crop, growth: 0 };
+      advanceTicks(1);
+      break;
+    }
+    case 'water': {
+      if (!t.crop) log('⚠️ Поливать нечего', 'warn');
+      else {
+        t.water = GAME.waterDuration;
+        spawnParticles(t.x + 0.5, t.y + 0.5, 6, 'water');
+      }
+      advanceTicks(1);
+      break;
+    }
+    case 'harvest': {
+      if (t.crop && t.crop.growth >= CROPS[t.crop.type].grow) {
+        const crop = t.crop.type;
+        const price = sellPrice(crop);
+        GAME.money += price;
+        GAME.totalEarned += price;
+        t.crop = null;
+        t.water = 0;
+        t.tilled = true;
+        spawnParticles(t.x + 0.5, t.y + 0.5, 8, 'coin');
+        addFloatText(t.x + 0.5, t.y + 0.5, '+' + price + '₽', '#ffd76e');
+        contractProgress(crop);
+        checkTierUp();
+        updateHUD();
+        saveAll();
+      } else if (t.crop) {
+        log('⚠️ Урожай не созрел', 'warn');
+      } else {
+        log('⚠️ Тут нечего собирать', 'warn');
+      }
+      advanceTicks(1);
+      break;
+    }
+    case 'clean': {
+      if (t.pest > 0) {
+        t.pest = 0;
+        spawnParticles(t.x + 0.5, t.y + 0.5, 5, 'clean');
+      } else {
+        log('⚠️ Тут нет вредителей', 'warn');
+      }
+      advanceTicks(1);
+      break;
+    }
+    case 'wait': advanceTicks(a.n); break;
+  }
+}
+
+/* ==================================================================
+   ЧАСТИЦЫ
+   ================================================================== */
+
+function spawnParticles(x, y, count, type) {
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x, y,
+      vx: (Math.random() - 0.5) * 0.08,
+      vy: -Math.random() * 0.12 - 0.02,
+      life: 1,
+      type,
+      size: 0.08 + Math.random() * 0.08
+    });
+  }
+  if (particles.length > 200) particles.splice(0, particles.length - 200);
+}
+
+function addFloatText(x, y, text, color) {
+  floatingTexts.push({ x, y, text, color, life: 1 });
+  if (floatingTexts.length > 30) floatingTexts.shift();
+}
+
+function updateParticles(dt) {
+  const speed = dt / 1000;
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx * speed * 8;
+    p.y += p.vy * speed * 8;
+    p.vy += 0.15 * speed * 8;
+    p.life -= speed * 1.2;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+  for (let i = floatingTexts.length - 1; i >= 0; i--) {
+    const f = floatingTexts[i];
+    f.y -= speed * 0.8;
+    f.life -= speed * 0.7;
+    if (f.life <= 0) floatingTexts.splice(i, 1);
+  }
+}
+
+/* ==================================================================
+   РИСОВАНИЕ
+   ================================================================== */
+
+function drawSoilBase(px, py, s, tilled) {
+  const g = ctx2d.createLinearGradient(px, py, px, py + s);
+  if (tilled) {
+    g.addColorStop(0, '#5d3f27');
+    g.addColorStop(1, '#4a3120');
+  } else {
+    g.addColorStop(0, '#2d5c34');
+    g.addColorStop(1, '#234a2a');
+  }
+  ctx2d.fillStyle = g;
+  ctx2d.fillRect(px, py, s, s);
+
+  const seed = (px * 13 + py * 7) | 0;
+  ctx2d.fillStyle = tilled ? 'rgba(255,220,180,0.05)' : 'rgba(140,200,140,0.06)';
+  for (let i = 0; i < 5; i++) {
+    const rx = ((seed * (i + 1) * 7) % 100) / 100;
+    const ry = ((seed * (i + 2) * 11) % 100) / 100;
+    ctx2d.fillRect(px + rx * s, py + ry * s, s * 0.06, s * 0.06);
+  }
+  if (tilled) {
+    ctx2d.strokeStyle = 'rgba(0,0,0,0.15)';
+    ctx2d.lineWidth = Math.max(1, s * 0.03);
+    for (let i = 1; i < 3; i++) {
+      ctx2d.beginPath();
+      ctx2d.moveTo(px + (i / 3) * s, py + s * 0.15);
+      ctx2d.lineTo(px + (i / 3) * s, py + s * 0.85);
+      ctx2d.stroke();
+    }
+  }
+  ctx2d.strokeStyle = 'rgba(0,0,0,0.25)';
+  ctx2d.lineWidth = 1;
+  ctx2d.strokeRect(px + 0.5, py + 0.5, s - 1, s - 1);
+}
+
+function drawWaterOverlay(px, py, s, water) {
+  if (water <= 0) return;
+  const intensity = Math.min(0.5, water / 12);
+  ctx2d.fillStyle = 'rgba(60,120,200,' + intensity + ')';
+  ctx2d.fillRect(px, py, s, s);
+  const t = animTime * 0.002;
+  ctx2d.strokeStyle = 'rgba(180,220,255,' + (intensity * 0.8) + ')';
+  ctx2d.lineWidth = Math.max(1, s * 0.025);
+  ctx2d.beginPath();
+  ctx2d.moveTo(px + s * 0.15, py + s * (0.4 + Math.sin(t) * 0.1));
+  ctx2d.lineTo(px + s * 0.5, py + s * (0.4 + Math.sin(t) * 0.1));
+  ctx2d.stroke();
+}
+
+function drawPlant(crop, cx, cy, s, growth, maxGrow) {
+  const prog = growth / maxGrow;
+  const mature = growth >= maxGrow;
+
+  ctx2d.save();
+  ctx2d.translate(cx, cy);
+
+  if (crop === 'wheat') {
+    const height = s * (0.25 + prog * 0.5);
+    ctx2d.strokeStyle = mature ? '#c8a84a' : '#4a8a3a';
+    ctx2d.lineWidth = Math.max(1.5, s * 0.05);
+    ctx2d.lineCap = 'round';
+    for (let i = -1; i <= 1; i++) {
+      ctx2d.beginPath();
+      ctx2d.moveTo(i * s * 0.12, s * 0.3);
+      ctx2d.quadraticCurveTo(i * s * 0.15, s * 0.05, i * s * 0.1, -height);
+      ctx2d.stroke();
+    }
+    if (mature) {
+      ctx2d.fillStyle = '#e0c060';
+      for (let i = -1; i <= 1; i++) {
+        ctx2d.beginPath();
+        ctx2d.ellipse(i * s * 0.1, -height, s * 0.08, s * 0.16, 0, 0, Math.PI * 2);
+        ctx2d.fill();
+      }
+    }
+  } else if (crop === 'carrot') {
+    const h = s * (0.2 + prog * 0.25);
+    ctx2d.strokeStyle = '#3e8a30';
+    ctx2d.lineWidth = Math.max(1.5, s * 0.06);
+    ctx2d.lineCap = 'round';
+    for (let i = -2; i <= 2; i++) {
+      ctx2d.beginPath();
+      ctx2d.moveTo(0, s * 0.3);
+      ctx2d.quadraticCurveTo(i * s * 0.1, s * 0.1, i * s * 0.15, -h);
+      ctx2d.stroke();
+    }
+    if (mature) {
+      ctx2d.fillStyle = '#e87a2a';
+      ctx2d.beginPath();
+      ctx2d.moveTo(-s * 0.12, s * 0.25);
+      ctx2d.lineTo(s * 0.12, s * 0.25);
+      ctx2d.lineTo(0, s * 0.42);
+      ctx2d.closePath();
+      ctx2d.fill();
+    }
+  } else if (crop === 'pumpkin') {
+    ctx2d.strokeStyle = '#3a7a30';
+    ctx2d.lineWidth = Math.max(1.5, s * 0.06);
+    ctx2d.lineCap = 'round';
+    ctx2d.beginPath();
+    ctx2d.moveTo(0, s * 0.4);
+    ctx2d.quadraticCurveTo(s * 0.15, s * 0.1, 0, -s * 0.15 * prog);
+    ctx2d.stroke();
+    ctx2d.fillStyle = '#4a9a3a';
+    for (let i = 0; i < 2; i++) {
+      const angle = (i * 2 - 1) * 0.7;
+      ctx2d.save();
+      ctx2d.translate(0, -s * 0.05 * prog);
+      ctx2d.rotate(angle);
+      ctx2d.beginPath();
+      ctx2d.ellipse(s * 0.15, 0, s * 0.16, s * 0.08, 0, 0, Math.PI * 2);
+      ctx2d.fill();
+      ctx2d.restore();
+    }
+    if (mature) {
+      const size = s * 0.22;
+      ctx2d.fillStyle = '#e07828';
+      ctx2d.beginPath();
+      ctx2d.ellipse(0, s * 0.15, size * 1.3, size, 0, 0, Math.PI * 2);
+      ctx2d.fill();
+      ctx2d.strokeStyle = '#a85010';
+      ctx2d.lineWidth = Math.max(1, s * 0.02);
+      ctx2d.beginPath();
+      ctx2d.moveTo(0, s * 0.15 - size); ctx2d.lineTo(0, s * 0.15 + size);
+      ctx2d.moveTo(-size * 0.7, s * 0.15 - size * 0.7); ctx2d.lineTo(-size * 0.7, s * 0.15 + size * 0.7);
+      ctx2d.moveTo(size * 0.7, s * 0.15 - size * 0.7); ctx2d.lineTo(size * 0.7, s * 0.15 + size * 0.7);
+      ctx2d.stroke();
+      ctx2d.strokeStyle = '#5a3a10';
+      ctx2d.lineWidth = Math.max(1.5, s * 0.05);
+      ctx2d.beginPath();
+      ctx2d.moveTo(0, s * 0.15 - size);
+      ctx2d.lineTo(0, s * 0.15 - size - s * 0.08);
+      ctx2d.stroke();
+    }
+  } else if (crop === 'sunflower') {
+    const h = s * (0.25 + prog * 0.5);
+    ctx2d.strokeStyle = '#4a8a30';
+    ctx2d.lineWidth = Math.max(1.5, s * 0.06);
+    ctx2d.lineCap = 'round';
+    ctx2d.beginPath();
+    ctx2d.moveTo(0, s * 0.4);
+    ctx2d.lineTo(0, -h);
+    ctx2d.stroke();
+    ctx2d.fillStyle = '#4a9a3a';
+    for (let i = 0; i < 2; i++) {
+      const y = s * 0.1 - i * s * 0.15;
+      const dir = i % 2 === 0 ? 1 : -1;
+      ctx2d.beginPath();
+      ctx2d.ellipse(dir * s * 0.14, y, s * 0.14, s * 0.07, dir * 0.4, 0, Math.PI * 2);
+      ctx2d.fill();
+    }
+    if (mature) {
+      const cr = s * 0.18;
+      ctx2d.fillStyle = '#f0c040';
+      for (let i = 0; i < 10; i++) {
+        const a = (i / 10) * Math.PI * 2;
+        ctx2d.beginPath();
+        ctx2d.ellipse(Math.cos(a) * cr * 0.75, -h + Math.sin(a) * cr * 0.75,
+          cr * 0.5, cr * 0.22, a, 0, Math.PI * 2);
+        ctx2d.fill();
+      }
+      ctx2d.fillStyle = '#5a3a10';
+      ctx2d.beginPath();
+      ctx2d.arc(0, -h, cr * 0.55, 0, Math.PI * 2);
+      ctx2d.fill();
+    }
+  } else if (crop === 'corn') {
+    const h = s * (0.3 + prog * 0.5);
+    ctx2d.strokeStyle = '#4a8a30';
+    ctx2d.lineWidth = Math.max(2, s * 0.06);
+    ctx2d.lineCap = 'round';
+    ctx2d.beginPath();
+    ctx2d.moveTo(0, s * 0.4);
+    ctx2d.lineTo(0, -h);
+    ctx2d.stroke();
+    ctx2d.strokeStyle = '#5aa040';
+    ctx2d.lineWidth = Math.max(1.5, s * 0.04);
+    for (let i = 0; i < 4; i++) {
+      const y = s * 0.2 - i * s * 0.13;
+      const dir = i % 2 === 0 ? 1 : -1;
+      ctx2d.beginPath();
+      ctx2d.moveTo(0, y);
+      ctx2d.quadraticCurveTo(dir * s * 0.2, y - s * 0.05, dir * s * 0.25, y - s * 0.15);
+      ctx2d.stroke();
+    }
+    if (mature) {
+      ctx2d.fillStyle = '#e8c040';
+      ctx2d.beginPath();
+      ctx2d.ellipse(s * 0.1, -h * 0.65, s * 0.06, s * 0.14, 0.2, 0, Math.PI * 2);
+      ctx2d.fill();
+      ctx2d.beginPath();
+      ctx2d.ellipse(-s * 0.1, -h * 0.5, s * 0.06, s * 0.14, -0.2, 0, Math.PI * 2);
+      ctx2d.fill();
+      ctx2d.fillStyle = '#a88020';
+      for (let i = 0; i < 4; i++) {
+        ctx2d.fillRect(s * 0.075, -h * 0.65 - s * 0.1 + i * s * 0.06, s * 0.05, s * 0.02);
+      }
+    }
+  } else if (crop === 'crystal') {
+    if (mature) {
+      const glow = 0.5 + 0.5 * Math.sin(animTime * 0.004);
+      ctx2d.save();
+      ctx2d.globalAlpha = 0.3 + glow * 0.3;
+      ctx2d.fillStyle = '#7ee2ff';
+      ctx2d.beginPath();
+      ctx2d.arc(0, 0, s * 0.42, 0, Math.PI * 2);
+      ctx2d.fill();
+      ctx2d.restore();
+      ctx2d.fillStyle = '#60c8ff';
+      ctx2d.beginPath();
+      ctx2d.moveTo(0, -s * 0.32);
+      ctx2d.lineTo(s * 0.12, 0);
+      ctx2d.lineTo(0, s * 0.15);
+      ctx2d.lineTo(-s * 0.12, 0);
+      ctx2d.closePath();
+      ctx2d.fill();
+      ctx2d.fillStyle = '#a0e8ff';
+      ctx2d.beginPath();
+      ctx2d.moveTo(s * 0.16, -s * 0.16);
+      ctx2d.lineTo(s * 0.24, s * 0.05);
+      ctx2d.lineTo(s * 0.16, s * 0.18);
+      ctx2d.lineTo(s * 0.08, s * 0.05);
+      ctx2d.closePath();
+      ctx2d.fill();
+      ctx2d.beginPath();
+      ctx2d.moveTo(-s * 0.16, -s * 0.16);
+      ctx2d.lineTo(-s * 0.08, s * 0.05);
+      ctx2d.lineTo(-s * 0.16, s * 0.18);
+      ctx2d.lineTo(-s * 0.24, s * 0.05);
+      ctx2d.closePath();
+      ctx2d.fill();
+      ctx2d.fillStyle = '#ffffff';
+      ctx2d.beginPath();
+      ctx2d.arc(0, -s * 0.18, s * 0.025, 0, Math.PI * 2);
+      ctx2d.fill();
+    } else {
+      const baseH = s * (0.1 + prog * 0.3);
+      ctx2d.strokeStyle = '#40a0d0';
+      ctx2d.lineWidth = Math.max(1.5, s * 0.05);
+      ctx2d.lineCap = 'round';
+      ctx2d.beginPath();
+      ctx2d.moveTo(0, s * 0.3);
+      ctx2d.lineTo(0, s * 0.3 - baseH);
+      ctx2d.stroke();
+      if (prog > 0.4) {
+        ctx2d.fillStyle = '#60c8ff';
+        ctx2d.beginPath();
+        ctx2d.arc(0, s * 0.3 - baseH, s * 0.05, 0, Math.PI * 2);
+        ctx2d.fill();
+      }
+    }
+  }
+  ctx2d.restore();
+}
+
+function drawPest(cx, cy, s) {
+  const t = animTime * 0.008;
+  const wob = Math.sin(t) * s * 0.03;
+  ctx2d.save();
+  ctx2d.translate(cx + wob, cy);
+  ctx2d.fillStyle = '#3a1f10';
+  ctx2d.beginPath();
+  ctx2d.ellipse(0, 0, s * 0.14, s * 0.1, 0, 0, Math.PI * 2);
+  ctx2d.fill();
+  ctx2d.fillStyle = '#5a2a10';
+  ctx2d.beginPath();
+  ctx2d.arc(-s * 0.14, 0, s * 0.07, 0, Math.PI * 2);
+  ctx2d.fill();
+  ctx2d.strokeStyle = '#2a1008';
+  ctx2d.lineWidth = Math.max(1, s * 0.02);
+  for (let i = 0; i < 3; i++) {
+    const ox = -s * 0.05 + i * s * 0.08;
+    ctx2d.beginPath();
+    ctx2d.moveTo(ox, -s * 0.06); ctx2d.lineTo(ox - s * 0.04, -s * 0.14);
+    ctx2d.moveTo(ox, s * 0.06);  ctx2d.lineTo(ox - s * 0.04, s * 0.14);
+    ctx2d.stroke();
+  }
+  ctx2d.fillStyle = '#ff3030';
+  ctx2d.beginPath();
+  ctx2d.arc(-s * 0.16, -s * 0.02, s * 0.018, 0, Math.PI * 2);
+  ctx2d.arc(-s * 0.16, s * 0.02, s * 0.018, 0, Math.PI * 2);
+  ctx2d.fill();
+  ctx2d.restore();
+}
+
+function drawDrone(cx, cy, s) {
+  const hover = Math.sin(animTime * 0.006) * s * 0.04;
+  ctx2d.save();
+  ctx2d.translate(cx, cy + hover);
+  ctx2d.save();
+  ctx2d.globalAlpha = 0.3;
+  ctx2d.fillStyle = '#000';
+  ctx2d.beginPath();
+  ctx2d.ellipse(0, s * 0.35, s * 0.28, s * 0.1, 0, 0, Math.PI * 2);
+  ctx2d.fill();
+  ctx2d.restore();
+
+  const rotorR = s * 0.14;
+  const armLen = s * 0.28;
+  const spin = animTime * 0.03;
+
+  ctx2d.strokeStyle = '#2a3644';
+  ctx2d.lineWidth = Math.max(2, s * 0.045);
+  ctx2d.lineCap = 'round';
+  const arms = [[-armLen, -armLen], [armLen, -armLen], [-armLen, armLen], [armLen, armLen]];
+  for (const [ax, ay] of arms) {
+    ctx2d.beginPath();
+    ctx2d.moveTo(0, 0);
+    ctx2d.lineTo(ax, ay);
+    ctx2d.stroke();
+  }
+  for (const [ax, ay] of arms) {
+    ctx2d.save();
+    ctx2d.translate(ax, ay);
+    ctx2d.globalAlpha = 0.4;
+    ctx2d.fillStyle = '#6fe3ff';
+    ctx2d.beginPath();
+    ctx2d.ellipse(0, 0, rotorR, rotorR * 0.3, 0, 0, Math.PI * 2);
+    ctx2d.fill();
+    ctx2d.globalAlpha = 0.9;
+    ctx2d.strokeStyle = '#a0eaff';
+    ctx2d.lineWidth = Math.max(1, s * 0.02);
+    ctx2d.beginPath();
+    ctx2d.moveTo(-rotorR, 0);
+    ctx2d.lineTo(rotorR, 0);
+    ctx2d.stroke();
+    ctx2d.rotate(spin);
+    ctx2d.restore();
+  }
+  const bodyG = ctx2d.createRadialGradient(-s * 0.05, -s * 0.05, 0, 0, 0, s * 0.2);
+  bodyG.addColorStop(0, '#8ee8ff');
+  bodyG.addColorStop(0.6, '#4a9ac8');
+  bodyG.addColorStop(1, '#1e4a6a');
+  ctx2d.fillStyle = bodyG;
+  ctx2d.beginPath();
+  ctx2d.ellipse(0, 0, s * 0.19, s * 0.16, 0, 0, Math.PI * 2);
+  ctx2d.fill();
+  ctx2d.fillStyle = '#0a0e13';
+  ctx2d.beginPath();
+  ctx2d.arc(0, s * 0.02, s * 0.06, 0, Math.PI * 2);
+  ctx2d.fill();
+  ctx2d.fillStyle = '#7ee2a8';
+  ctx2d.beginPath();
+  ctx2d.arc(s * 0.02, s * 0.02, s * 0.025, 0, Math.PI * 2);
+  ctx2d.fill();
+  ctx2d.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx2d.beginPath();
+  ctx2d.ellipse(-s * 0.07, -s * 0.07, s * 0.05, s * 0.03, -0.5, 0, Math.PI * 2);
+  ctx2d.fill();
+  ctx2d.restore();
+}
+
+function render() {
+  if (CW <= 0) return;
+  const N = GAME.fieldSize;
+  const pad = CW * 0.03;
+  const fieldSize = CW - pad * 2;
+  const cell = fieldSize / N;
+  const ox = pad, oy = pad;
+
+  ctx2d.clearRect(0, 0, CW, CW);
+
+  const bgG = ctx2d.createRadialGradient(CW/2, CW/2, CW*0.2, CW/2, CW/2, CW*0.75);
+  bgG.addColorStop(0, '#1a3a20');
+  bgG.addColorStop(1, '#0a1a10');
+  ctx2d.fillStyle = bgG;
+  ctx2d.fillRect(0, 0, CW, CW);
+
+  ctx2d.fillStyle = '#3a2a1a';
+  ctx2d.fillRect(ox - 3, oy - 3, fieldSize + 6, fieldSize + 6);
+
+  ctx2d.save();
+  ctx2d.beginPath();
+  ctx2d.rect(ox, oy, fieldSize, fieldSize);
+  ctx2d.clip();
+
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      const t = tileAt(x, y);
+      const px = ox + x * cell;
+      const py = oy + y * cell;
+      drawSoilBase(px, py, cell, t.tilled);
+      drawWaterOverlay(px, py, cell, t.water);
+    }
+  }
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      const t = tileAt(x, y);
+      if (!t.crop) continue;
+      const cx = ox + x * cell + cell / 2;
+      const cy = oy + y * cell + cell / 2;
+      const def = CROPS[t.crop.type];
+      drawPlant(t.crop.type, cx, cy, cell, t.crop.growth, def.grow);
+      if (t.crop.growth >= def.grow) {
+        const pulse = 0.5 + 0.5 * Math.sin(animTime * 0.005 + (x + y) * 0.7);
+        ctx2d.save();
+        ctx2d.globalAlpha = 0.2 + pulse * 0.35;
+        ctx2d.fillStyle = '#ffe07a';
+        ctx2d.beginPath();
+        ctx2d.arc(cx, cy, cell * 0.42, 0, Math.PI * 2);
+        ctx2d.fill();
+        ctx2d.restore();
+      }
+    }
+  }
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      const t = tileAt(x, y);
+      if (t.pest > 0) {
+        drawPest(ox + x * cell + cell / 2, oy + y * cell + cell / 2, cell);
+      }
+    }
+  }
+  for (const p of particles) {
+    const px = ox + p.x * cell;
+    const py = oy + p.y * cell;
+    ctx2d.globalAlpha = p.life;
+    if (p.type === 'water') ctx2d.fillStyle = '#6fc8ff';
+    else if (p.type === 'coin') ctx2d.fillStyle = '#ffd76e';
+    else if (p.type === 'pest') ctx2d.fillStyle = '#5a2a10';
+    else if (p.type === 'clean') ctx2d.fillStyle = '#7ee2a8';
+    else if (p.type === 'loss') ctx2d.fillStyle = '#ff6b6b';
+    ctx2d.beginPath();
+    ctx2d.arc(px, py, cell * p.size * p.life, 0, Math.PI * 2);
+    ctx2d.fill();
+    ctx2d.globalAlpha = 1;
+  }
+  ctx2d.textAlign = 'center';
+  ctx2d.textBaseline = 'middle';
+  for (const f of floatingTexts) {
+    const px = ox + f.x * cell;
+    const py = oy + f.y * cell;
+    ctx2d.globalAlpha = f.life;
+    ctx2d.font = 'bold ' + (cell * 0.4) + 'px -apple-system,sans-serif';
+    ctx2d.fillStyle = '#000';
+    ctx2d.fillText(f.text, px + 1, py + 1);
+    ctx2d.fillStyle = f.color;
+    ctx2d.fillText(f.text, px, py);
+  }
+  ctx2d.globalAlpha = 1;
+
+  const dcx = ox + drone.x * cell + cell / 2;
+  const dcy = oy + drone.y * cell + cell / 2;
+  drawDrone(dcx, dcy, cell);
+
+  const W = WEATHERS[GAME.weather];
+  ctx2d.fillStyle = W.tint;
+  ctx2d.fillRect(ox, oy, fieldSize, fieldSize);
+
+  if (GAME.weather === 'rain') {
+    ctx2d.strokeStyle = 'rgba(150,200,255,0.5)';
+    ctx2d.lineWidth = 1.5;
+    const t = (animTime * 0.5) % 40;
+    for (let i = 0; i < 15; i++) {
+      const x = (i * 47 + t * 3) % fieldSize + ox;
+      const y = (i * 31 + t * 8) % fieldSize + oy;
+      ctx2d.beginPath();
+      ctx2d.moveTo(x, y);
+      ctx2d.lineTo(x - 2, y + 10);
+      ctx2d.stroke();
+    }
+  }
+  ctx2d.restore();
+}
+
+function updateHUD() {
+  document.getElementById('hMoney').textContent = GAME.money.toLocaleString('ru-RU');
+  document.getElementById('hField').textContent = GAME.fieldSize + '×' + GAME.fieldSize;
+}
+
+/* ==================================================================
+   ГЛАВНЫЙ ЦИКЛ
+   ================================================================== */
+
+function startRun() {
+  if (running) return;
+  const src = document.getElementById('code').value;
+  let ast;
+  try { ast = parse(tokenize(src)); }
+  catch (e) { log('❌ Синтаксис: ' + e.message, 'err'); return; }
+
+  clearLog();
+  resetDrone();
+  particles.length = 0;
+  floatingTexts.length = 0;
+
+  const ctx = { funcs: {}, steps: 0, maxSteps: 500000, depth: 0, globalEnv: null };
+  gen = runProgram(ast, ctx);
+  running = true;
+  acc = 0;
+  lastT = performance.now();
+  log('▶ Запуск…');
+  document.getElementById('btnRun').disabled = true;
+  document.getElementById('btnStop').disabled = false;
+  if (!rafId) rafId = requestAnimationFrame(loop);
+}
+
+function stopRun(silent) {
+  const wasRunning = running;
+  running = false;
+  document.getElementById('btnRun').disabled = false;
+  document.getElementById('btnStop').disabled = true;
+  if (!silent && wasRunning) log('⏸ Остановлено');
+  saveAll();
+}
+
+function loop(t) {
+  const dt = Math.min(t - lastT, 120);
+  lastT = t;
+  animTime = t;
+
+  if (running) {
+    acc += dt;
+    let budget = 500;
+    while (running && acc >= delay && budget-- > 0) {
+      acc -= delay;
+      stepOnce();
+    }
+  }
+  updateParticles(dt);
+  render();
+  rafId = requestAnimationFrame(loop);
+}
+
+function stepOnce() {
+  if (!running || !gen) return;
+  let res;
+  try { res = gen.next(); }
+  catch (e) {
+    running = false;
+    stopRun(true);
+    log('❌ Ошибка: ' + e.message, 'err');
+    return;
+  }
+  if (res.done) {
+    running = false;
+    stopRun(true);
+    log('⏹ Программа завершена. Всего: ' + GAME.totalEarned.toLocaleString('ru-RU') + '₽');
+    return;
+  }
+  const act = res.value;
+  if (act) performAction(act);
+}
+
+/* ==================================================================
+   СОХРАНЕНИЕ
+   ================================================================== */
+
+const SAVE_KEY = 'fr2_save_v4';
+
+function saveAll() {
+  try {
+    const tiles = [];
+    for (const t of grid.values()) {
+      if (t.tilled || t.crop || t.water || t.pest)
+        tiles.push({ x:t.x, y:t.y, tilled:t.tilled, crop:t.crop, water:t.water, pest:t.pest });
+    }
+    const data = {
+      game: GAME,
+      grid: tiles,
+      code: document.getElementById('code').value
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  } catch (e) {}
+}
+
+function loadAll() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (data.game) Object.assign(GAME, data.game);
+    if (Array.isArray(data.grid)) {
+      grid.clear();
+      const N = GAME.fieldSize;
+      for (const t of data.grid) {
+        if (t.x >= 0 && t.y >= 0 && t.x < N && t.y < N)
+          grid.set(t.x + ',' + t.y, {
+            x:t.x, y:t.y, tilled:!!t.tilled, crop:t.crop || null,
+            water:t.water || 0, pest:t.pest || 0
+          });
+      }
+    }
+    if (typeof data.code === 'string' && data.code.trim())
+      document.getElementById('code').value = data.code;
+    return true;
+  } catch (e) { return false; }
+}
+
+/* ==================================================================
+   МАГАЗИН
+   ================================================================== */
+
+function openShop() {
+  updateShopUI();
+  document.getElementById('shopModal').classList.remove('hidden');
+}
+function closeShop() {
+  document.getElementById('shopModal').classList.add('hidden');
+}
+
+function updateShopUI() {
+  document.getElementById('shopMoney').textContent = '💰 ' + GAME.money.toLocaleString('ru-RU') + '₽';
+  document.getElementById('shopRank').textContent = 'Ранг: ' + TIER_NAMES[getTier()];
+  const list = document.getElementById('shopList');
+  list.innerHTML = '';
+
+  const available = UPGRADES.filter(u => u.can());
+  const owned = UPGRADES.filter(u => !u.can());
+
+  if (available.length === 0 && owned.length === 0) return;
+
+  const byCat = {};
+  for (const u of available) {
+    if (!byCat[u.cat]) byCat[u.cat] = [];
+    byCat[u.cat].push(u);
+  }
+  // сортировка по цене
+  for (const c of Object.keys(byCat)) byCat[c].sort((a,b) => a.cost - b.cost);
+
+  if (available.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:24px;color:#7ee2a8;font-weight:700;font-size:14px">🏆 Всё куплено. Ты — легенда автоматизации!</div>';
+  } else {
+    for (const cat of CATEGORY_ORDER) {
+      if (!byCat[cat]) continue;
+      const h = document.createElement('div');
+      h.className = 'shop-cat';
+      h.textContent = cat;
+      list.appendChild(h);
+      for (const u of byCat[cat]) {
+        const item = document.createElement('div');
+        item.className = 'shop-item';
+        const affordable = GAME.money >= u.cost;
+        item.innerHTML =
+          '<div class="shop-icon">' + (u.icon || '⚙️') + '</div>' +
+          '<div class="shop-info">' +
+            '<div class="shop-name">' + u.name + '</div>' +
+            '<div class="shop-desc">' + u.desc + '</div>' +
+          '</div>' +
+          '<button class="shop-buy"' + (affordable ? '' : ' disabled') + '>' + u.cost.toLocaleString('ru-RU') + '₽</button>';
+        const btn = item.querySelector('.shop-buy');
+        if (affordable) btn.onclick = () => buyUpgrade(u);
+        list.appendChild(item);
+      }
+    }
+  }
+
+  if (owned.length) {
+    const h = document.createElement('div');
+    h.className = 'shop-cat';
+    h.textContent = 'Куплено (' + owned.length + '/' + UPGRADES.length + ')';
+    list.appendChild(h);
+    const byCatOwned = {};
+    for (const u of owned) {
+      if (!byCatOwned[u.cat]) byCatOwned[u.cat] = [];
+      byCatOwned[u.cat].push(u);
+    }
+    for (const cat of CATEGORY_ORDER) {
+      if (!byCatOwned[cat]) continue;
+      for (const u of byCatOwned[cat]) {
+        const item = document.createElement('div');
+        item.className = 'shop-item owned';
+        item.innerHTML =
+          '<div class="shop-icon">' + (u.icon || '✓') + '</div>' +
+          '<div class="shop-info"><div class="shop-name">' + u.name + '</div></div>' +
+          '<button class="shop-buy owned" disabled>✓</button>';
+        list.appendChild(item);
+      }
+    }
+  }
+}
+
+function buyUpgrade(u) {
+  if (GAME.money < u.cost) return;
+  GAME.money -= u.cost;
+  u.apply();
+  GAME.purchases.push(u.id);
+  updateHUD();
+  updateTierUI();
+  updateWeatherUI();
+  updateShopUI();
+  saveAll();
+  toast('✓ ' + u.name);
+  log('🛒 ' + u.name + ' (−' + u.cost.toLocaleString('ru-RU') + '₽)', 'good');
+}
+
+/* ==================================================================
+   ТОСТ
+   ================================================================== */
+
+function toast(msg, cls) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (cls ? ' ' + cls : '');
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'opacity .3s';
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 320);
+  }, 1600);
+}
+
+/* ==================================================================
+   СПРАВКА
+   ================================================================== */
+
+function buildHelp() {
+  return `
+РАНГИ (по общему заработку)
+  ${TIER_NAMES.map((n, i) => n + ' — ' + (TIER_THRESHOLDS[i] ? TIER_THRESHOLDS[i].toLocaleString('ru-RU') + '₽' : '')).join('\n  ')}
+
+ДВИЖЕНИЕ
+  up()  down()  left()  right()
+  move("up")
+
+ФЕРМА
+  till()             вспахать
+  plant("wheat")     посадить (${GAME.unlockedCrops.join(' / ')})
+  water()            полить (+${GAME.waterDuration} тактов роста)
+  harvest()          собрать
+  clean()            убрать вредителя
+  wait(n)            пропустить n тактов
+
+ДАТЧИКИ
+  can_harvest()  is_tilled()  has_plant()  has_pest()
+  get_crop()     get_pos_x()  get_pos_y()
+  get_money()    get_ticks()  get_field_size()
+  get_weather()  get_tier()
+  get_forecast() — следующая погода (нужен апгрейд)
+
+КОНТРАКТ
+  contract_crop()   какую культуру хочет контракт
+  contract_left()   сколько ещё сдать
+  contract_ticks()  сколько тактов осталось
+
+ЯЗЫК
+  x = 5
+  if (усл.) { ... } else { ... }
+  while (усл.) { ... }
+  repeat(n) { ... }
+  func имя(a) { return a * 2 }
+  + - * / %   ==  !=  <  >  <=  >=   and  or  not
+
+ПОГОДА
+  ☀️ Солнечно — норма
+  ⛅ Облачно — норма
+  🌧️ Дождь — автополив
+  🥵 Засуха — рост ×0.5, вода ×2
+  ⛈️ Гроза — движение ×2 такта
+
+ВРЕДИТЕЛИ
+  Появляются редко на грядках с растениями.
+  За 5 тактов съедают растение.
+  Убирай: if (has_pest()) { clean() }
+
+КУЛЬТУРЫ
+${Object.entries(CROPS).map(([k, v]) => '  ' + v.icon + ' ' + v.name.padEnd(20) + v.grow + ' тактов · ' + v.price + '₽').join('\n')}
+
+АПГРЕЙДЫ (магазин 🔧)
+  Поле · Семена · Гидропоника · Погода · Защита · Дрон · Экономика
+
+НА ТЕЛЕФОНЕ
+  Меню браузера → «Добавить на главный экран» —
+  игра установится как приложение.
+`;
+}
+
+function openHelp() {
+  document.getElementById('helpBox').innerHTML = buildHelp().replace(/</g, '&lt;');
+  document.getElementById('helpModal').classList.remove('hidden');
+}
+function closeHelp() { document.getElementById('helpModal').classList.add('hidden'); }
+
+/* ==================================================================
+   ПРИВЕТСТВИЕ
+   ================================================================== */
+
+function openWelcome() { document.getElementById('welcomeModal').classList.remove('hidden'); }
+function closeWelcome() {
+  document.getElementById('welcomeModal').classList.add('hidden');
+  try { localStorage.setItem('fr2_welcomed_v4', '1'); } catch(e) {}
+}
+
+/* ==================================================================
+   QUICK BAR
+   ================================================================== */
+
+function buildQuickBar() {
+  const items = [
+    ['up()', 'up()'],
+    ['down()', 'down()'],
+    ['left()', 'left()'],
+    ['right()', 'right()'],
+    ['till()', 'till()'],
+    ['plant("wheat")', 'plant("wheat")'],
+    ['water()', 'water()'],
+    ['harvest()', 'harvest()'],
+    ['clean()', 'clean()'],
+    ['wait(3)', 'wait(3)'],
+    ['if () {\n  \n}', 'if () {\n  \n}'],
+    ['repeat(8) {\n  \n}', 'repeat(8) {\n  \n}'],
+    ['func f() {\n  \n}', 'func f() {\n  \n}']
+  ];
+  const bar = document.getElementById('quick');
+  bar.innerHTML = '';
+  items.forEach(([label, ins]) => {
+    const b = document.createElement('button');
+    b.textContent = label;
+    b.onclick = () => insertAtCursor(ins);
+    bar.appendChild(b);
+  });
+}
+
+function insertAtCursor(text) {
+  const ta = document.getElementById('code');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const before = ta.value.slice(0, s);
+  const after = ta.value.slice(e);
+  const lineStart = before.lastIndexOf('\n') + 1;
+  const indent = (before.slice(lineStart).match(/^\s*/) || [''])[0];
+  const body = text.split('\n').join('\n' + indent);
+  ta.value = before + body + after;
+  const pos = s + body.length;
+  ta.selectionStart = ta.selectionEnd = pos;
+  ta.focus();
+  saveAll();
+}
+
+/* ==================================================================
+   RESIZE
+   ================================================================== */
+
+function resize() {
+  const w = stageEl.clientWidth;
+  const h = stageEl.clientHeight;
+  const size = Math.max(140, Math.floor(Math.min(w, h)) - 6);
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = size * dpr;
+  cv.height = size * dpr;
+  cv.style.width = size + 'px';
+  cv.style.height = size + 'px';
+  ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0);
+  CW = size;
+}
+
+if (window.ResizeObserver) new ResizeObserver(() => resize()).observe(stageEl);
+window.addEventListener('resize', () => resize());
+window.addEventListener('orientationchange', () => setTimeout(resize, 200));
+
+/* ==================================================================
+   ОБРАБОТЧИКИ
+   ================================================================== */
+
+document.getElementById('btnRun').onclick = startRun;
+document.getElementById('btnStop').onclick = () => stopRun(false);
+document.getElementById('btnClear').onclick = () => {
+  if (!confirm('Очистить поле? Растения погибнут.')) return;
+  stopRun(true);
+  clearField();
+  log('↺ Поле очищено');
+  saveAll();
+};
+document.getElementById('btnShop').onclick = openShop;
+document.getElementById('btnHelp').onclick = openHelp;
+document.getElementById('shopClose').onclick = closeShop;
+document.getElementById('helpClose').onclick = closeHelp;
+document.getElementById('shopModal').onclick = e => { if (e.target.id === 'shopModal') closeShop(); };
+document.getElementById('helpModal').onclick = e => { if (e.target.id === 'helpModal') closeHelp(); };
+document.getElementById('welcomeStart').onclick = closeWelcome;
+document.getElementById('welcomeHelp').onclick = () => { closeWelcome(); openHelp(); };
+
+document.getElementById('btnResetAll').onclick = () => {
+  if (!confirm('Сбросить ВЕСЬ прогресс? Деньги, апгрейды, поле — всё исчезнет.')) return;
+  if (!confirm('Точно? Это необратимо.')) return;
+  try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
+  location.reload();
+};
+
+document.getElementById('speed').oninput = e => {
+  const v = parseInt(e.target.value, 10);
+  delay = Math.round(230 / v);
+};
+delay = Math.round(230 / parseInt(document.getElementById('speed').value, 10));
+
+const ta = document.getElementById('code');
+let saveTimer = null;
+ta.addEventListener('input', () => {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveAll, 500);
+});
+
+ta.addEventListener('keydown', e => {
+  if (e.key === 'Tab') { e.preventDefault(); insertAtCursor('  '); }
+  if (e.key === 'Enter') {
+    const s = ta.selectionStart;
+    const before = ta.value.slice(0, s);
+    const lineStart = before.lastIndexOf('\n') + 1;
+    const line = before.slice(lineStart);
+    let indent = (line.match(/^\s*/) || [''])[0];
+    if (/\{\s*$/.test(line)) indent += '  ';
+    e.preventDefault();
+    const after = ta.value.slice(ta.selectionEnd);
+    const ins = '\n' + indent;
+    ta.value = before + ins + after;
+    ta.selectionStart = ta.selectionEnd = s + ins.length;
+    saveAll();
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); startRun(); }
+});
+
+/* ==================================================================
+   PWA MANIFEST
+   ================================================================== */
+
+(function setupPWA() {
+  try {
+    const icon = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">' +
+      '<rect width="192" height="192" fill="#1f6f43"/>' +
+      '<text x="96" y="130" font-size="110" text-anchor="middle">🛸</text>' +
+      '</svg>'
+    );
+    const manifest = {
+      name: 'Farmer Replaced 2',
+      short_name: 'FR2',
+      start_url: '.',
+      display: 'standalone',
+      orientation: 'portrait',
+      background_color: '#0a0e13',
+      theme_color: '#0a0e13',
+      icons: [
+        { src: icon, sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },
+        { src: icon, sizes: '512x512', type: 'image/svg+xml', purpose: 'any' }
+      ]
+    };
+    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+    const url = URL.createObjectURL(blob);
+    let link = document.querySelector('link[rel=manifest]');
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'manifest';
+      document.head.appendChild(link);
+    }
+    link.href = url;
+  } catch (e) {}
+})();
+
+/* ==================================================================
+   ИНИЦИАЛИЗАЦИЯ
+   ================================================================== */
+
+buildQuickBar();
+loadAll();
+if (!document.getElementById('code').value.trim())
+  document.getElementById('code').value = DEFAULT_CODE;
+
+if (!GAME.contract) newContract();
+if (!GAME.weather || !GAME.nextWeather) initWeather();
+GAME.lastTier = getTier();
+
+updateWeatherUI();
+updateHUD();
+updateTierUI();
+updateContractUI();
+resize();
+setTimeout(resize, 60);
+setTimeout(resize, 300);
+
+log('🤖 FARMER REPLACED 2 — DRONE PROTOCOL');
+log('💰 ' + GAME.money.toLocaleString('ru-RU') + '₽  ·  поле ' + GAME.fieldSize + '×' + GAME.fieldSize +
+    '  ·  ранг: ' + TIER_NAMES[getTier()]);
+log('Магазин → 🔧   ·   Справка → ?');
+
+try {
+  if (!localStorage.getItem('fr2_welcomed_v4')) openWelcome();
+} catch (e) { openWelcome(); }
+
+setInterval(saveAll, 8000);
+window.addEventListener('beforeunload', saveAll);
+document.addEventListener('visibilitychange', () => { if (document.hidden) saveAll(); });
+
+rafId = requestAnimationFrame(loop);
+</script>
+</body>
+      </html>
